@@ -1,0 +1,589 @@
+{
+  "proceso": {
+    "nombre": "Atención de PQRS",
+    "codigo": "PR-ATU-04",
+    "organizacion": "Entidad de ejemplo",
+    "area": "Atención al usuario",
+    "objetivo": "Dar respuesta de fondo a peticiones, quejas, reclamos y sugerencias dentro del término legal",
+    "alcance": "Desde que el usuario radica la solicitud hasta que recibe la respuesta",
+    "disparador": "El usuario radica una PQRS por correo, ventanilla o formulario web",
+    "resultado": "Respuesta de fondo notificada al usuario",
+    "volumen": "320 solicitudes al mes",
+    "normatividad": [
+      "Ley 1755 de 2015 (derecho de petición)",
+      "Ley 1437 de 2011, art. 56 (notificación electrónica)",
+      "Ley 527 de 1999 y Decreto 2364 de 2012 (firma electrónica)"
+    ],
+    "fecha": "2026-10-30",
+    "version": "1.1"
+  },
+  "roles": [
+    {
+      "id": "usuario",
+      "nombre": "Usuario",
+      "tipo": "externo"
+    },
+    {
+      "id": "ventanilla",
+      "nombre": "Ventanilla única",
+      "tipo": "persona"
+    },
+    {
+      "id": "coordinacion",
+      "nombre": "Coordinación de atención",
+      "tipo": "persona"
+    },
+    {
+      "id": "area",
+      "nombre": "Área responsable",
+      "tipo": "persona"
+    },
+    {
+      "id": "juridica",
+      "nombre": "Oficina jurídica",
+      "tipo": "persona"
+    },
+    {
+      "id": "sistema",
+      "nombre": "Sistema de gestión documental",
+      "tipo": "sistema"
+    }
+  ],
+  "pasos": [
+    {
+      "id": "P01",
+      "nombre": "Radica la PQRS",
+      "rol": "usuario",
+      "tipo": "inicio",
+      "columna": 1,
+      "estado": "queda",
+      "descripcion": "El usuario presenta su solicitud por correo electrónico, ventanilla física o formulario web.",
+      "fuente": "usuario"
+    },
+    {
+      "id": "P02",
+      "nombre": "Recibir y radicar",
+      "rol": "ventanilla",
+      "tipo": "tarea",
+      "columna": 2,
+      "estado": "optimizable",
+      "descripcion": "La funcionaria copia los datos de la solicitud al gestor documental y asigna número de radicado.",
+      "tiempo_min": 10,
+      "espera_min": 30,
+      "sistema": "Gestor documental",
+      "hallazgo": {
+        "categoria": "Digitación manual",
+        "problema": "Los datos se transcriben a mano desde el correo o el formulario, con errores de digitación y 30 minutos de cola.",
+        "propuesta": "Formulario web único conectado al gestor documental que genera el radicado al enviar; la ventanilla física radica en el mismo formulario, asistiendo al usuario.",
+        "impacto": "alto",
+        "esfuerzo": "medio",
+        "ahorro_min": 39
+      },
+      "automatizacion": {
+        "tipo": "Formulario digital",
+        "descripcion": "El formulario web crea el expediente y el radicado en el gestor documental por API y envía acuse al usuario.",
+        "nombre_nuevo": "Radicado automático",
+        "rol_nuevo": "sistema",
+        "tiempo_nuevo_min": 1,
+        "espera_nueva_min": 0
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P03",
+      "nombre": "Imprimir y escanear correos",
+      "rol": "ventanilla",
+      "tipo": "tarea",
+      "columna": 3,
+      "estado": "se_va",
+      "descripcion": "Las solicitudes que llegan por correo se imprimen y luego se escanean para cargarlas al expediente.",
+      "tiempo_min": 8,
+      "espera_min": 60,
+      "estimado": true,
+      "hallazgo": {
+        "categoria": "Sobreprocesamiento",
+        "problema": "Se convierte un documento digital en papel para volverlo a digitalizar. No agrega valor y consume papel.",
+        "propuesta": "Adjuntar el correo original al expediente directamente desde el radicado automático.",
+        "impacto": "medio",
+        "esfuerzo": "bajo",
+        "ahorro_min": 68
+      },
+      "fuente": "estimado_autorizado"
+    },
+    {
+      "id": "P04",
+      "nombre": "Clasificar solicitud",
+      "rol": "coordinacion",
+      "tipo": "tarea",
+      "columna": 4,
+      "estado": "optimizable",
+      "descripcion": "La coordinadora lee la solicitud y define si es petición, queja, reclamo o sugerencia y su término legal.",
+      "tiempo_min": 5,
+      "espera_min": 240,
+      "sistema": "Gestor documental",
+      "hallazgo": {
+        "categoria": "Espera / cuello de botella",
+        "problema": "Todas las solicitudes esperan en la bandeja de una sola persona; el promedio de espera es de 4 horas.",
+        "propuesta": "El usuario elige el tipo en el formulario y una regla asigna el término legal; la coordinación solo revisa excepciones.",
+        "impacto": "alto",
+        "esfuerzo": "bajo",
+        "ahorro_min": 240
+      },
+      "automatizacion": {
+        "tipo": "Regla de negocio",
+        "descripcion": "Regla en el gestor documental: tipo seleccionado + palabras clave → tipología y fecha de vencimiento.",
+        "nombre_nuevo": "Clasificación por reglas",
+        "rol_nuevo": "sistema",
+        "tiempo_nuevo_min": 0,
+        "espera_nueva_min": 0
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P05",
+      "nombre": "Asignar área responsable",
+      "rol": "coordinacion",
+      "tipo": "tarea",
+      "columna": 5,
+      "estado": "optimizable",
+      "descripcion": "Según el tema, la coordinación reenvía la solicitud al área que debe responder.",
+      "tiempo_min": 5,
+      "espera_min": 120,
+      "sistema": "Gestor documental",
+      "hallazgo": {
+        "categoria": "Traspaso innecesario",
+        "problema": "La asignación depende de la memoria de la coordinadora y suma otra cola de 2 horas.",
+        "propuesta": "Matriz tema → área parametrizada en el gestor documental para enrutar de forma automática.",
+        "impacto": "alto",
+        "esfuerzo": "bajo",
+        "ahorro_min": 125
+      },
+      "automatizacion": {
+        "tipo": "Regla de negocio",
+        "descripcion": "Enrutamiento automático según la matriz de competencias tema → área.",
+        "nombre_nuevo": "Enrutamiento automático",
+        "rol_nuevo": "sistema",
+        "tiempo_nuevo_min": 0,
+        "espera_nueva_min": 0
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P06",
+      "nombre": "Elaborar respuesta",
+      "rol": "area",
+      "tipo": "tarea",
+      "columna": 6,
+      "estado": "queda",
+      "descripcion": "El profesional del área analiza el caso y proyecta la respuesta de fondo.",
+      "tiempo_min": 90,
+      "espera_min": 960,
+      "sistema": "Gestor documental",
+      "fuente": "usuario"
+    },
+    {
+      "id": "P07",
+      "nombre": "¿Requiere concepto jurídico?",
+      "rol": "area",
+      "tipo": "decision",
+      "columna": 7,
+      "estado": "queda",
+      "descripcion": "El profesional decide si el caso necesita análisis de la oficina jurídica.",
+      "tiempo_min": 5,
+      "espera_min": 0,
+      "fuente": "usuario"
+    },
+    {
+      "id": "P08",
+      "nombre": "Emitir concepto jurídico",
+      "rol": "juridica",
+      "tipo": "tarea",
+      "columna": 8,
+      "estado": "queda",
+      "descripcion": "La oficina jurídica revisa el caso y emite concepto.",
+      "tiempo_min": 60,
+      "espera_min": 1440,
+      "estimado": true,
+      "fuente": "estimado_autorizado"
+    },
+    {
+      "id": "P09",
+      "nombre": "Visto bueno del jefe de área",
+      "rol": "area",
+      "tipo": "tarea",
+      "columna": 9,
+      "estado": "queda",
+      "descripcion": "El jefe del área revisa y aprueba la respuesta proyectada. Es el control de calidad del contenido.",
+      "tiempo_min": 15,
+      "espera_min": 480,
+      "fuente": "usuario"
+    },
+    {
+      "id": "P10",
+      "nombre": "Segunda revisión de la respuesta",
+      "rol": "coordinacion",
+      "tipo": "tarea",
+      "columna": 10,
+      "estado": "se_va",
+      "descripcion": "La coordinación vuelve a revisar la respuesta ya aprobada por el jefe de área.",
+      "tiempo_min": 20,
+      "espera_min": 480,
+      "hallazgo": {
+        "categoria": "Aprobación redundante",
+        "problema": "Repite el control que ya hizo el jefe de área; en 6 meses no ha generado cambios de fondo y suma un día de espera.",
+        "propuesta": "Eliminarla. La coordinación hace seguimiento por tablero de vencimientos en lugar de revisar caso a caso.",
+        "impacto": "alto",
+        "esfuerzo": "bajo",
+        "ahorro_min": 500
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P11",
+      "nombre": "Imprimir y firmar",
+      "rol": "ventanilla",
+      "tipo": "tarea",
+      "columna": 11,
+      "estado": "optimizable",
+      "descripcion": "La respuesta se imprime, se lleva a firma física y se escanea de nuevo.",
+      "tiempo_min": 10,
+      "espera_min": 240,
+      "hallazgo": {
+        "categoria": "Firma física",
+        "problema": "La firma en papel obliga a imprimir, desplazar el documento y volver a escanear.",
+        "propuesta": "Firma electrónica del jefe de área dentro del gestor documental.",
+        "impacto": "medio",
+        "esfuerzo": "medio",
+        "ahorro_min": 245
+      },
+      "automatizacion": {
+        "tipo": "Firma electrónica",
+        "descripcion": "Firma electrónica integrada al gestor documental conforme a la Ley 527 de 1999 y el Decreto 2364 de 2012.",
+        "nombre_nuevo": "Firma electrónica",
+        "rol_nuevo": "area",
+        "tiempo_nuevo_min": 1,
+        "espera_nueva_min": 0
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P12",
+      "nombre": "Enviar por correo certificado",
+      "rol": "ventanilla",
+      "tipo": "tarea",
+      "columna": 12,
+      "estado": "optimizable",
+      "descripcion": "La respuesta se envía en físico por empresa de mensajería.",
+      "tiempo_min": 15,
+      "espera_min": 480,
+      "hallazgo": {
+        "categoria": "Canal costoso",
+        "problema": "El envío físico tarda un día hábil y tiene costo por guía, aunque la mayoría de usuarios dio un correo electrónico.",
+        "propuesta": "Notificación electrónica con acuse a quien autorizó ese medio; envío físico solo como excepción.",
+        "impacto": "alto",
+        "esfuerzo": "bajo",
+        "ahorro_min": 490
+      },
+      "automatizacion": {
+        "tipo": "Notificación",
+        "descripcion": "Envío automático de la respuesta firmada con correo certificado electrónico y constancia en el expediente (Ley 1437, art. 56).",
+        "nombre_nuevo": "Notificación electrónica",
+        "rol_nuevo": "sistema",
+        "tiempo_nuevo_min": 1,
+        "espera_nueva_min": 5
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P13",
+      "nombre": "Registrar cierre en Excel",
+      "rol": "ventanilla",
+      "tipo": "tarea",
+      "columna": 13,
+      "estado": "se_va",
+      "descripcion": "Se anota el cierre del caso en una hoja de Excel de control.",
+      "tiempo_min": 5,
+      "espera_min": 60,
+      "hallazgo": {
+        "categoria": "Registro duplicado",
+        "problema": "El gestor documental ya registra el cierre; el Excel duplica el dato y se desactualiza.",
+        "propuesta": "Eliminar el Excel y sacar los informes del gestor documental.",
+        "impacto": "medio",
+        "esfuerzo": "bajo",
+        "ahorro_min": 65
+      },
+      "fuente": "usuario"
+    },
+    {
+      "id": "P14",
+      "nombre": "Recibe la respuesta",
+      "rol": "usuario",
+      "tipo": "fin",
+      "columna": 14,
+      "estado": "queda",
+      "descripcion": "El usuario recibe la respuesta de fondo.",
+      "fuente": "usuario"
+    }
+  ],
+  "conexiones": [
+    {
+      "de": "P01",
+      "a": "P02"
+    },
+    {
+      "de": "P02",
+      "a": "P03"
+    },
+    {
+      "de": "P03",
+      "a": "P04"
+    },
+    {
+      "de": "P04",
+      "a": "P05"
+    },
+    {
+      "de": "P05",
+      "a": "P06"
+    },
+    {
+      "de": "P06",
+      "a": "P07"
+    },
+    {
+      "de": "P07",
+      "a": "P08",
+      "etiqueta": "Sí"
+    },
+    {
+      "de": "P07",
+      "a": "P09",
+      "etiqueta": "No"
+    },
+    {
+      "de": "P08",
+      "a": "P09"
+    },
+    {
+      "de": "P09",
+      "a": "P10"
+    },
+    {
+      "de": "P10",
+      "a": "P11"
+    },
+    {
+      "de": "P11",
+      "a": "P12"
+    },
+    {
+      "de": "P12",
+      "a": "P13"
+    },
+    {
+      "de": "P13",
+      "a": "P14"
+    }
+  ],
+  "arquitectura": {
+    "preguntas": [
+      {
+        "tema": "Sistemas",
+        "pregunta": "¿Qué sistema usan hoy para radicar y tramitar las PQRS?",
+        "respuesta": "Un gestor documental web con módulo de PQRS; tiene API REST pero no se ha usado."
+      },
+      {
+        "tema": "Canales",
+        "pregunta": "¿Por qué canales llegan las solicitudes y en qué proporción?",
+        "respuesta": "Correo 60 %, ventanilla física 25 %, formulario web 15 %."
+      },
+      {
+        "tema": "Firma",
+        "pregunta": "¿Cuentan con firma electrónica o digital?",
+        "respuesta": "No. El gestor documental ofrece un módulo de firma electrónica que no está contratado."
+      },
+      {
+        "tema": "Datos personales",
+        "pregunta": "¿Dónde se guardan los datos del usuario y quién tiene acceso?",
+        "respuesta": "En el gestor documental, con perfiles por área. El Excel de control está en una carpeta compartida sin restricción."
+      },
+      {
+        "tema": "Reportes",
+        "pregunta": "¿Cómo se controlan los vencimientos?",
+        "respuesta": "Manualmente con el Excel; no hay alertas."
+      }
+    ],
+    "sistemas": [
+      {
+        "id": "formulario",
+        "nombre": "Formulario web de PQRS",
+        "tipo": "nuevo",
+        "descripcion": "Canal único de entrada para correo y web, con autorización de notificación electrónica."
+      },
+      {
+        "id": "gestor",
+        "nombre": "Gestor documental",
+        "tipo": "existente",
+        "descripcion": "Núcleo del trámite: expediente, reglas de clasificación, enrutamiento y vencimientos."
+      },
+      {
+        "id": "firma",
+        "nombre": "Módulo de firma electrónica",
+        "tipo": "nuevo",
+        "descripcion": "Módulo del mismo proveedor del gestor documental."
+      },
+      {
+        "id": "correo",
+        "nombre": "Correo certificado electrónico",
+        "tipo": "nuevo",
+        "descripcion": "Servicio con acuse de recibo y constancia de entrega."
+      },
+      {
+        "id": "tablero",
+        "nombre": "Tablero de vencimientos",
+        "tipo": "nuevo",
+        "descripcion": "Reporte del gestor documental con alertas por correo a 3 y 1 día del vencimiento."
+      },
+      {
+        "id": "excel",
+        "nombre": "Excel de control",
+        "tipo": "a_reemplazar",
+        "descripcion": "Se retira; lo reemplaza el tablero."
+      }
+    ],
+    "integraciones": [
+      {
+        "de": "formulario",
+        "a": "gestor",
+        "mecanismo": "API REST",
+        "descripcion": "Crea el expediente y el radicado al enviar.",
+        "estado": "propuesta"
+      },
+      {
+        "de": "gestor",
+        "a": "firma",
+        "mecanismo": "Módulo nativo",
+        "descripcion": "Firma dentro del flujo de aprobación.",
+        "estado": "propuesta"
+      },
+      {
+        "de": "gestor",
+        "a": "correo",
+        "mecanismo": "API REST",
+        "descripcion": "Envía la respuesta y guarda la constancia.",
+        "estado": "propuesta"
+      },
+      {
+        "de": "gestor",
+        "a": "tablero",
+        "mecanismo": "Reporte nativo",
+        "descripcion": "Vencimientos y alertas.",
+        "estado": "propuesta"
+      }
+    ],
+    "propuestas": [
+      {
+        "titulo": "Canal único de entrada",
+        "descripcion": "Redirigir el buzón de correo a un acuse que invita al formulario, radicar los correos que lleguen con un conector al gestor documental, y usar el mismo formulario en ventanilla para la atención presencial (25 % de los casos).",
+        "pasos": [
+          "P02",
+          "P03"
+        ],
+        "esfuerzo": "medio"
+      },
+      {
+        "titulo": "Reglas de clasificación y enrutamiento",
+        "descripcion": "Parametrizar tipologías, términos legales y matriz tema → área en el gestor documental.",
+        "pasos": [
+          "P04",
+          "P05"
+        ],
+        "esfuerzo": "bajo"
+      },
+      {
+        "titulo": "Firma y notificación electrónica",
+        "descripcion": "Contratar el módulo de firma y el servicio de correo certificado electrónico.",
+        "pasos": [
+          "P11",
+          "P12"
+        ],
+        "esfuerzo": "medio"
+      }
+    ],
+    "riesgos": [
+      {
+        "riesgo": "Clasificación automática errónea que asigne un término legal equivocado.",
+        "mitigacion": "Revisión semanal por muestreo durante los tres primeros meses y bandeja de excepciones para la coordinación.",
+        "nivel": "medio"
+      },
+      {
+        "riesgo": "Usuarios sin correo electrónico o que no autorizan notificación electrónica.",
+        "mitigacion": "Mantener el envío físico como excepción dentro del mismo flujo.",
+        "nivel": "bajo"
+      },
+      {
+        "riesgo": "Excel con datos personales en carpeta compartida sin control de acceso.",
+        "mitigacion": "Retirarlo en la fase 1 y depurar la carpeta.",
+        "nivel": "alto"
+      }
+    ]
+  },
+  "resumen_ejecutivo": "El flujo actual de PQRS tiene 14 pasos y, en el peor caso (con concepto jurídico), acumula unos 10 días hábiles por solicitud, de los cuales más del 90 % es espera entre bandejas. Se propone eliminar 3 pasos que no agregan valor (impresión y escaneo de correos, segunda revisión de la coordinación y registro en Excel) y automatizar 5 con capacidades que el gestor documental ya tiene o que se contratan como módulo. El flujo optimizado queda en 11 pasos, la coordinación deja de ser cuello de botella y el tiempo de ciclo baja un 37 %, a poco más de 6 días hábiles, sin eliminar ningún control de fondo.",
+  "hoja_ruta": [
+    {
+      "fase": "Corto plazo",
+      "plazo": "0-3 meses",
+      "acciones": [
+        "Eliminar la segunda revisión de la coordinación y el Excel de control; activar el tablero de vencimientos con alertas como compensación.",
+        "Parametrizar tipologías, términos y matriz de enrutamiento.",
+        "Activar notificación electrónica para quienes la autorizaron."
+      ],
+      "pasos": [
+        "P10",
+        "P13",
+        "P04",
+        "P05",
+        "P12"
+      ]
+    },
+    {
+      "fase": "Mediano plazo",
+      "plazo": "3-6 meses",
+      "acciones": [
+        "Publicar el formulario web integrado por API.",
+        "Suprimir la impresión y escaneo de correos."
+      ],
+      "pasos": [
+        "P02",
+        "P03"
+      ]
+    },
+    {
+      "fase": "Largo plazo",
+      "plazo": "6-12 meses",
+      "acciones": [
+        "Implementar firma electrónica en el gestor documental.",
+        "Medir tiempos reales y ajustar las reglas."
+      ],
+      "pasos": [
+        "P11"
+      ]
+    }
+  ],
+  "auditoria": {
+    "estado": "aprobado con observaciones",
+    "fecha": "2026-10-30",
+    "observaciones": [
+      {
+        "severidad": "mayor",
+        "observacion": "La eliminación de la segunda revisión no puede dejar a la coordinación sin visibilidad de vencimientos.",
+        "accion": "Se agregó el tablero de vencimientos con alertas como condición de la fase 1."
+      },
+      {
+        "severidad": "menor",
+        "observacion": "Los tiempos de P03 y P08 son estimados.",
+        "accion": "Se señalan en el informe y se medirán en la fase 3."
+      }
+    ]
+  }
+}

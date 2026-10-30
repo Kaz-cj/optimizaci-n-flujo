@@ -1,0 +1,4 @@
+# Dependencias del sistema /optimizar-flujo
+# Instalación: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+reportlab>=4.0      # informe PDF (scripts/generar_informe.py)
+pypdfium2>=4.0      # convertir páginas del PDF a imagen para revisarlas

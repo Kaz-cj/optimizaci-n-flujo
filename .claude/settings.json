@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "ask": [
+      "Edit(.claude/skills/optimizar-flujo/reglas.md)",
+      "Edit(.claude/skills/*/SKILL.md)",
+      "Edit(.claude/agents/*.md)"
+    ]
+  }
+}

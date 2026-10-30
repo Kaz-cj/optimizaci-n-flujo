@@ -1,0 +1,10 @@
+# Entorno de Python
+.venv/
+__pycache__/
+*.pyc
+
+# Ajustes personales de Claude Code (los del proyecto sí se versionan)
+.claude/settings.local.json
+
+# Sistema operativo
+.DS_Store

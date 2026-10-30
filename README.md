@@ -9,8 +9,8 @@ de forma independiente y entrega un **diagrama interactivo** y un **informe PDF*
 🔴 se elimina   ·   🟢 se mantiene   ·   🔵 optimizable / automatizable
 ```
 
-> **¿Primera vez?** Sigue el [**tutorial paso a paso**](TUTORIAL.md): desde
-> instalar Claude Code hasta leer tu primer informe.
+> **¿Primera vez?** Sigue el [**tutorial paso a paso**](TUTORIAL.md) (también
+> en [PDF](TUTORIAL.pdf)): desde instalar Claude Code hasta leer tu primer informe.
 
 ## Qué recibes en cada análisis
 

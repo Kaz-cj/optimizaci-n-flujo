@@ -1,7 +1,10 @@
 # Proyecto: Optimización de flujos
 
 Este repositorio es un sistema de consultoría de procesos para Claude Code. Las
-instrucciones completas están en `README.md`; léelo si no lo conoces.
+instrucciones completas están en `README.md` y la guía para principiantes en
+`TUTORIAL.md`; léelos si no los conoces. Si el usuario parece nuevo (pregunta
+cómo instalar algo, qué es una terminal, cómo empezar), remítelo al tutorial y
+acompáñalo paso a paso.
 
 ## Primera interacción en una sesión
 
